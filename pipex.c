@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: icarboni <icarboni@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: icarboni <icarboni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/18 20:12:59 by icarboni          #+#    #+#             */
-/*   Updated: 2022/11/02 18:23:15 by icarboni         ###   ########.fr       */
+/*   Updated: 2022/11/08 11:41:36 by icarboni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,53 +40,80 @@ char	**ft_env_parse(char **envp)
 char	*ft_get_path(char **paths, char *cmd)
 {
 	int 	i;
-	int 	j;
 	char	*command;
 	char	*command2;
 
 	i = -1;
-	j = -1;
 	while (paths[++i])
 	{
 		command = ft_strjoin(paths[i], "/");
 		command2 = ft_strjoin(command, cmd);
 		free(command);
+		//("%s\n", command2);
 		if (access(command2, 0) == 0)
 			return (command2);
 		free(command2);
 	}
-	return (NULL);
+	exit(1);
 }
-
-void	ft_execute_father(char *cmd, char **envp)
+/* 
+void	ft_execute(char *cmd, char **envp)
 {
 	char 	**args;
 	char 	**paths;
 	char	*command;
+	int		d;
+	char	**args_clean;
 
 	args = ft_split(cmd, ' ');
+	//args = ft_clean_args(args);
 	paths = ft_env_parse(envp);
-	command = ft_get_path(paths, cmd);
-	printf("%s", command);
+	command = ft_get_path(paths, args[0]);
+	//printf("%s", command);
+	args_clean = ft_clean_args(args);
 	if (command == NULL)
-		exit(1);
-	execve(command, args, envp);
-}
+	{
+		command = ft_get_path(paths, args_clean[0]);
+		if (command == NULL)
+			exit(EXIT_FAILURE);
+	}
+	d = execve(command, args, envp);
+	if (d == -1)
+	{
+		d = execve(command, args_clean, envp);
+		if (d == -1)
+		{
+			ft_putstr_error(strerror(errno), "execve");
+			exit(1);
 
-void	ft_execute_child(char *cmd, char **envp)
+		}
+	}
+}*/
+
+void	ft_execute(char *cmd, char **envp)
 {
-	char **args;
-	char **paths;
+	char 	**args;
+	char 	**paths;
 	char	*command;
+	int		d;
 
 	args = ft_split(cmd, ' ');
 	paths = ft_env_parse(envp);
-	command = ft_get_path(paths, cmd);
-	printf("%s", command);
+	command = ft_get_path(paths, args[0]);
 	if (command == NULL)
-		exit(1);
-	execve(command, args, envp);
-}
+		exit(EXIT_FAILURE);
+	d = execve(command, args, envp);
+	if (d == -1)
+	{
+		d = execve(command, ft_clean_args(args), envp);
+		if (d == -1)
+		{
+			ft_putstr_error(strerror(errno), "execve");
+			exit(1);
+
+		}
+	}
+} 
 
 void	ft_child_function(int f1, char **argv, int pip[], char **envp)
 {
@@ -99,7 +126,7 @@ void	ft_child_function(int f1, char **argv, int pip[], char **envp)
 	if (d < 0)
 		exit(1);
 	close(pip[0]);
-	ft_execute_child(argv[2], envp);
+	ft_execute(argv[2], envp);
 	close(f1);
 }
 
@@ -107,9 +134,7 @@ void	ft_father_function(int f2, char **argv, int pip[], char **envp)
 {
 	int		d;
 	int 	status;
-	int 	i;
 
-	i = -1;
 	waitpid(-1, &status, 0);
 	d = dup2(f2, STDOUT_FILENO);
 	if (d < 0)
@@ -118,14 +143,14 @@ void	ft_father_function(int f2, char **argv, int pip[], char **envp)
 	if (d < 0)
 		exit(1);
 	close(pip[1]);
-	ft_execute_father(argv[3], envp);
+	ft_execute(argv[3], envp);
 	close(f2);
 }
 
 void	pipex(int f1, int f2, char **argv, char **envp)
 {
 	int		pip[2];
-	int	father;
+	int		father;
 
 	pipe(pip);
 	father = fork();
@@ -135,7 +160,7 @@ void	pipex(int f1, int f2, char **argv, char **envp)
 		ft_child_function(f1, argv, pip, envp);
 	else
 		ft_father_function(f2, argv, pip, envp);
-	exit(0);
+	//exit(0);
 }
 
 int main(int argc, char **argv, char **envp)
@@ -152,10 +177,16 @@ int main(int argc, char **argv, char **envp)
 	{
 		f1 = open(argv[1], O_RDONLY);
 		if (f1 < 0)
-			return (ft_putstr2(strerror(errno), argv[4]));
+		{
+			ft_putstr_error(strerror(errno), argv[1]);
+			exit(1);
+		}
 		f2 = open(argv[4], O_CREAT | O_RDWR | O_TRUNC, 0644);
 		if (f2 < 0)
-			return (ft_putstr2(strerror(errno), argv[4]));
+		{
+			ft_putstr_error(strerror(errno), argv[4]);
+			exit(1);
+		}
 		else
 			pipex(f1, f2, argv, envp);
 	}

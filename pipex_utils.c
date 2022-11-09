@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   pipex_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: icarboni <icarboni@student.42malaga.com    +#+  +:+       +#+        */
+/*   By: icarboni <icarboni@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/19 18:58:27 by icarboni          #+#    #+#             */
-/*   Updated: 2022/10/30 20:20:50 by icarboni         ###   ########.fr       */
+/*   Updated: 2022/11/08 11:32:33 by icarboni         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,20 +33,10 @@ int	ft_strstr(char *str, char *to_find)
 	return (0);
 }
 
-int	ft_strlen(const char *str)
-{
-	int	i;
-
-	i = 0;
-	while (str && str[i])
-		i++;
-	return (i);
-}
-
-int	ft_putstr2(char *s, char *t)
+void	ft_putstr_error(char *s, char *t)
 {
 	if (!s)
-		return (2);
+		return ;
 	if (t)
 	{
 		write(2, "-bash: ", 7);
@@ -59,5 +49,25 @@ int	ft_putstr2(char *s, char *t)
 		s++;
 	}
 	write(2, "\n", 1);
-	return (2);
+}
+
+char **ft_clean_args(char **args)
+{
+	int i;
+	int j;
+
+	i = 1;
+	j = 0;
+	while(args[i])
+	{
+		while(args[i][j])
+			j++;
+		//printf("%s", args[i]);
+		if (args[i][0] == '"' && args[i][j - 1] == '"')
+			args[i]++;
+			args[i][j - 2] = 0;
+		//printf("%s", args[i]);
+		i++;
+	}
+	return (args);
 }

@@ -1,0 +1,77 @@
+# 09: The program handles infile's open error                               [OK]
+Your tty output:
+-bash: not-existing/deepthought.txt: No such file or directory
+Your exit status:
+Exit status: 1
+Expected: <128
+# 10: The output when infile's open error occur is correct                  [OK]
+Bash: 0
+Your tty output:
+-bash: not-existing/deepthought.txt: No such file or directory
+Your exit status:
+Exit status: 1
+Expected: <128
+
+
+# 24: The output of the command contains 'command not found'                [OK]
+Your pipex:
+       0       0       0
+Your tty output:
+Your exit status:
+Exit status: 0
+Expected: <128
+
+# 26: The program exits with the right status code                          [OK]
+Your pipex:
+Your tty output:
+Your exit status:
+Exit status: 1
+Expected: <128
+
+# 27: The output of the command contains 'command not found'                [OK]
+Your pipex:
+Your tty output:
+Your exit status:
+Exit status: 1
+Expected: <128
+
+# 29: The program exits with the right status code                          [OK]
+Your pipex:
+Your tty output:
+Your exit status:
+Exit status: 1
+Expected: <128
+# 30: The output of the command is correct                                  [OK]
+Your pipex:
+Bash:
+"Now?"
+"Now," said Deep Thought.
+"Doesn't matter!" said Phouchg. "We must know it! Now!"
+"Now?" inquired Deep Thought.
+"Yes! Now ..."
+Your tty output:
+Your exit status:
+Exit status: 1
+Expected: <128
+
+The next test will use the following command:
+../pipex "/dev/urandom" "cat" "head -1" "outs/test-xx.txt"
+
+# 31: The program does not timeout                                          [TO]
+Your pipex:
+Your tty output:
+scripts/test_utils.sh: line 19: 46110 Terminated: 15          $MEMLEAKS "$@"
+Your exit status:
+Exit status: 143
+Expected: 0
+
+
+	Summary
+
+30 OK - 1 TO
+
+OK: Test passed
+OK: Not optimal or like bash (should not invalidate the project)
+KO: Test did not pass
+LK: Test detected leaks
+TO: Test timed out
